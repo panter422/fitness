@@ -1,116 +1,122 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { View, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native-paper';
+import { Clock, Route, Activity, Trophy, ArrowUpRight } from 'lucide-react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
-import { Button } from 'react-native-paper';
+export default function StatsScreen() {
+  const savedActivities = useSelector((state: RootState) => state.activities.activities);
 
-export default function HomeScreen() {
+  const totalDistance = savedActivities.reduce((acc, curr) => acc + curr.distance, 0) / 1000;
+  const totalSeconds = savedActivities.reduce((acc, curr) => acc + curr.duration, 0);
+  const totalHours = Math.floor(totalSeconds / 3600);
+  const totalMins = Math.floor((totalSeconds % 3600) / 60);
+  
+  const stats = [
+    {
+      label: 'Total Active Time',
+      value: `${totalHours}h ${totalMins}m`,
+      icon: Clock,
+      color: '#0df2f2', // Teal
+    },
+    {
+      label: 'Total Distance',
+      value: `${totalDistance.toFixed(1)} km`,
+      icon: Route,
+      color: '#ff00ff', // Magenta/Pink
+    },
+    {
+      label: 'Activities',
+      value: `${savedActivities.length}`,
+      icon: Activity,
+      color: '#25f447', // Lime
+    },
+  ];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
+    <SafeAreaView className="flex-1 bg-zinc-950">
+      <ScrollView className="flex-1 px-6 pt-12 pb-24">
+        {/* Header */}
+        <View className="mb-8 flex-row items-center justify-between">
+          <View>
+            <Text className="text-zinc-500 text-sm font-bold uppercase tracking-widest">Athlete</Text>
+            <Text style={{ fontFamily: 'BarlowCondensed-Bold' }} className="text-4xl text-white uppercase italic">
+              YOUR STATS
+            </Text>
+          </View>
+          <TouchableOpacity className="h-10 w-10 rounded-full border border-zinc-800 items-center justify-center">
+            <Text className="text-zinc-400">AJ</Text>
+          </TouchableOpacity>
+        </View>
 
-      <ThemedView className="p-4 bg-blue-100 rounded-xl my-4">
-        <ThemedText className="text-blue-800 font-bold mb-2">
-          UI Libraries Test
-        </ThemedText>
-        <Button 
-          mode="contained" 
-          onPress={() => console.log('Paper Button Pressed')}
-          className="bg-purple-600"
-        >
-          React Native Paper Button
-        </Button>
-        <ThemedText className="mt-2 text-sm text-blue-600 text-center">
-          Styled with NativeWind className
-        </ThemedText>
-      </ThemedView>
+        {/* Hero Cards */}
+        {stats.map((stat, i) => (
+          <Animated.View 
+            entering={FadeInDown.delay(i * 100).duration(600).springify()}
+            key={i} 
+            className="mb-4 overflow-hidden rounded-2xl bg-zinc-900 border-l-4" 
+            style={{ borderLeftColor: stat.color }}
+          >
+            <View className="p-5 flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <View className="h-12 w-12 rounded-xl bg-zinc-800/50 items-center justify-center mr-4">
+                  <stat.icon size={24} color={stat.color} strokeWidth={2.5} />
+                </View>
+                <View>
+                  <Text className="text-zinc-500 text-xs font-bold uppercase tracking-tighter">
+                    {stat.label}
+                  </Text>
+                  <Text style={{ fontFamily: 'BarlowCondensed-Bold' }} className="text-3xl text-white italic">
+                    {stat.value}
+                  </Text>
+                </View>
+              </View>
+              <ArrowUpRight size={20} color="#3f3f46" />
+            </View>
+            
+            {/* Gritty paint splashes (simulated with absolute views) */}
+            <View className="absolute -right-4 -bottom-4 h-16 w-16 opacity-10" style={{ backgroundColor: stat.color, transform: [{ rotate: '45deg' }] }} />
+          </Animated.View>
+        ))}
 
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+        {/* Highlights / Badges */}
+        <View className="mt-8 mb-4">
+          <Text className="text-zinc-500 text-sm font-bold uppercase tracking-widest mb-4">Achievements</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+            {[
+              { label: '100km Club', color: '#0df2f2' },
+              { label: 'Early Bird', color: '#ff00ff' },
+              { label: 'Trail Blazer', color: '#25f447' },
+              { label: 'Iron Heart', color: '#facc15' },
+            ].map((badge, i) => (
+              <View key={i} className="mr-3 p-3 rounded-xl bg-zinc-900 border border-zinc-800 items-center justify-center">
+                <Trophy size={20} color={badge.color} className="mb-2" />
+                <Text className="text-zinc-500 text-[10px] uppercase font-bold">{badge.label}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* Weekly Progress Simulation */}
+        <View className="mt-8 p-6 rounded-3xl bg-zinc-900 border border-zinc-800 overflow-hidden">
+          <Text className="text-zinc-500 text-sm font-bold uppercase tracking-widest mb-6">Weekly Intensity</Text>
+          <View className="flex-row items-end justify-between h-32">
+            {[40, 70, 45, 90, 60, 30, 80].map((h, i) => (
+              <View key={i} className="w-8 rounded-full bg-zinc-800/80 items-center justify-end overflow-hidden">
+                <View className="w-full bg-cyan-400 rounded-full" style={{ height: `${h}%`, opacity: 0.8 }} />
+              </View>
+            ))}
+          </View>
+          <View className="flex-row justify-between mt-4">
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+              <Text key={i} className="text-zinc-600 text-[10px] font-bold w-8 text-center">{d}</Text>
+            ))}
+          </View>
+        </View>
+        
+        <View className="h-32" />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

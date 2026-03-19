@@ -1,22 +1,33 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import { persistStore, persistReducer } from 'redux-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/services/api';
+import activityReducer from './activitySlice';
 
-export const store = configureStore({
-  reducer: {
-    // Add the generated reducer as a specific top-level slice
-    [api.reducerPath]: api.reducer,
-    // Future slices:
-    // auth: authReducer,
-  },
-  // Adding the api middleware enables caching, invalidation, polling,
-  // and other useful features of `rtk-query`.
-  middleware: (getDefaultMiddleware: any) =>
-    getDefaultMiddleware().concat(api.middleware),
+const rootReducer = combineReducers({
+  [api.reducerPath]: api.reducer,
+  activities: activityReducer,
 });
 
-// Optional, but required for refetchOnFocus/refetchOnReconnect behaviors
-// see `setupListeners` docs - takes an optional callback as the 2nd arg for customization
+const persistConfig = {
+  key: 'root',
+  storage: AsyncStorage,
+  whitelist: ['activities'], // only persist activity history
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false, // required for redux-persist
+    }).concat(api.middleware),
+});
+
+export const persistor = persistStore(store);
+
 setupListeners(store.dispatch);
 
 export type RootState = ReturnType<typeof store.getState>;

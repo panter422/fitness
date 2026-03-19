@@ -6,7 +6,6 @@
 import { Platform } from 'react-native';
 
 const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
@@ -19,11 +18,17 @@ export const Colors = {
   },
   dark: {
     text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
+    background: '#09090b', // zinc-950
+    tint: '#0df2f2', // Teal
     icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    tabIconDefault: '#52525b',
+    tabIconSelected: '#0df2f2',
+    // Custom Street Energy Palette
+    teal: '#0df2f2',
+    pink: '#ff00ff',
+    lime: '#25f447',
+    carbon: '#09090b',
+    zinc: '#18181b',
   },
 };
 
