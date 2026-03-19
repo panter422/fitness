@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MapPin, Route, Clock } from 'lucide-react-native';
-import { MapView, Polyline, PROVIDER_GOOGLE } from '@/components/safe-map-view';
+import { MapView, Polyline, PROVIDER_GOOGLE } from '@/src/components/maps/safe-map-view';
 
 interface SocialShareCardProps {
   activity: {

@@ -11,7 +11,7 @@ import Animated, {
   Extrapolate
 } from 'react-native-reanimated';
 
-import { HapticTab } from '@/components/haptic-tab';
+import { HapticTab } from '@/src/components/ui/haptic-tab';
 import { LayoutDashboard, History, CirclePlay } from 'lucide-react-native';
 
 function GlowPulse({ focused }: { focused: boolean }) {
