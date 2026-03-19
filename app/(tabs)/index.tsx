@@ -6,6 +6,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
+import { Button } from 'react-native-paper';
 
 export default function HomeScreen() {
   return (
@@ -21,6 +22,23 @@ export default function HomeScreen() {
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
       </ThemedView>
+
+      <ThemedView className="p-4 bg-blue-100 rounded-xl my-4">
+        <ThemedText className="text-blue-800 font-bold mb-2">
+          UI Libraries Test
+        </ThemedText>
+        <Button 
+          mode="contained" 
+          onPress={() => console.log('Paper Button Pressed')}
+          className="bg-purple-600"
+        >
+          React Native Paper Button
+        </Button>
+        <ThemedText className="mt-2 text-sm text-blue-600 text-center">
+          Styled with NativeWind className
+        </ThemedText>
+      </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>
