@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/store';
-import { MapView, Polyline, PROVIDER_GOOGLE } from '@/src/components/maps/safe-map-view';
+import MapLibreView from '@/src/components/maps/maplibre-map';
 import { Share2, X, MapPin, Clock, Route, Zap, TrendingUp } from 'lucide-react-native';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -87,25 +87,18 @@ export default function ActivitySummaryScreen() {
 
         {/* Map Snapshot */}
         <View className="h-60 rounded-3xl overflow-hidden border border-zinc-900 mb-8">
-          <MapView
-            provider={PROVIDER_GOOGLE}
-            className="flex-1"
-            customMapStyle={darkMapStyle}
+          <MapLibreView
+            style={{ flex: 1 }}
             initialRegion={{
               latitude: activity.path[0].latitude,
               longitude: activity.path[0].longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
             }}
             scrollEnabled={false}
             zoomEnabled={false}
-          >
-            <Polyline
-              coordinates={activity.path}
-              strokeColor="#0df2f2"
-              strokeWidth={4}
-            />
-          </MapView>
+            trailCoordinates={activity.path}
+            trailColor="#0df2f2"
+            trailWidth={4}
+          />
         </View>
 
         {/* Key Stats Row */}
@@ -156,11 +149,3 @@ export default function ActivitySummaryScreen() {
     </SafeAreaView>
   );
 }
-
-const darkMapStyle = [
-  { "elementType": "geometry", "stylers": [{ "color": "#18181b" }] },
-  { "elementType": "labels.text.fill", "stylers": [{ "color": "#71717a" }] },
-  { "elementType": "labels.text.stroke", "stylers": [{ "color": "#18181b" }] },
-  { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#27272a" }] },
-  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#09090b" }] }
-];

@@ -2,7 +2,6 @@ import React, { forwardRef } from 'react';
 import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { MapPin, Route, Clock } from 'lucide-react-native';
-import { MapView, Polyline, PROVIDER_GOOGLE } from '@/src/components/maps/safe-map-view';
 
 interface SocialShareCardProps {
   activity: {
@@ -45,26 +44,14 @@ export const SocialShareCard = forwardRef<View, SocialShareCardProps>(({ activit
           </View>
         </View>
 
-        {/* Mini Map Snapshot for Sharing */}
-        <View className="h-32 w-full rounded-2xl overflow-hidden border border-zinc-800 my-4 bg-zinc-900">
-           <MapView
-            provider={PROVIDER_GOOGLE}
-            className="flex-1"
-            customMapStyle={darkMapStyle}
-            initialRegion={{
-              latitude: activity.path[0].latitude,
-              longitude: activity.path[0].longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-            liteMode
-          >
-            <Polyline
-              coordinates={activity.path}
-              strokeColor="#0df2f2"
-              strokeWidth={4}
-            />
-          </MapView>
+        {/* Trail Preview (static placeholder for share card) */}
+        <View className="h-32 w-full rounded-2xl overflow-hidden border border-zinc-800 my-4 bg-zinc-900 items-center justify-center">
+          <View className="items-center">
+            <View className="h-1 w-32 bg-cyan-400 rounded-full mb-2 opacity-60" />
+            <View className="h-1 w-24 bg-cyan-400 rounded-full mb-2 opacity-40 ml-4" />
+            <View className="h-1 w-28 bg-cyan-400 rounded-full opacity-30 -ml-2" />
+          </View>
+          <Text className="text-zinc-600 text-[8px] mt-2 uppercase tracking-widest">Trail Map</Text>
         </View>
 
         <View className="flex-row justify-between items-end">
@@ -103,11 +90,3 @@ export const SocialShareCard = forwardRef<View, SocialShareCardProps>(({ activit
 });
 
 SocialShareCard.displayName = 'SocialShareCard';
-
-const darkMapStyle = [
-  { "elementType": "geometry", "stylers": [{ "color": "#18181b" }] },
-  { "elementType": "labels.text.fill", "stylers": [{ "color": "#71717a" }] },
-  { "elementType": "labels.text.stroke", "stylers": [{ "color": "#18181b" }] },
-  { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#27272a" }] },
-  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#09090b" }] }
-];

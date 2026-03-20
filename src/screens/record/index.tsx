@@ -3,19 +3,17 @@ import { addActivity } from "@/src/store/activitySlice";
 import { router } from "expo-router";
 import {
   Clock,
-  Map as MapIcon,
   Pause,
   Play,
   Route,
   Square,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React from "react";
 import { TouchableOpacity, View } from "react-native";
-import { MapView, Polyline, PROVIDER_GOOGLE } from "@/src/components/maps/safe-map-view";
+import MapLibreView from "@/src/components/maps/maplibre-map";
 import { Text } from "react-native-paper";
 import Animated, {
   FadeInDown,
-  FadeInRight,
   FadeInUp,
 } from "react-native-reanimated";
 import { useDispatch } from "react-redux";
@@ -37,8 +35,6 @@ export default function RecordScreen() {
     stopRecording,
   } = useActivityTracker();
 
-  const [mapType, setMapType] = useState<"standard" | "satellite">("standard");
-
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -57,7 +53,7 @@ export default function RecordScreen() {
         date: Date.now(),
         distance: finalData.distance,
         duration: finalData.duration,
-        elevation: Math.floor(finalData.distance / 50), // mocked elevation
+        elevation: Math.floor(finalData.distance / 50),
         path: finalData.path.map((p) => ({
           latitude: p.latitude,
           longitude: p.longitude,
@@ -72,36 +68,24 @@ export default function RecordScreen() {
 
   return (
     <View className="flex-1 bg-zinc-950">
-      {/* Map View */}
+      {/* MapLibre View */}
       {currentLocation ? (
-        <MapView
-          provider={PROVIDER_GOOGLE}
-          className="flex-1"
-          customMapStyle={darkMapStyle}
-          mapType={mapType}
+        <MapLibreView
+          style={{ flex: 1 }}
           initialRegion={{
             latitude: currentLocation.latitude,
             longitude: currentLocation.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
           }}
           region={{
             latitude: currentLocation.latitude,
             longitude: currentLocation.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
           }}
           showsUserLocation
           followsUserLocation
-        >
-          {path.length > 1 && (
-            <Polyline
-              coordinates={path}
-              strokeColor="#0df2f2" // Teal
-              strokeWidth={6}
-            />
-          )}
-        </MapView>
+          trailCoordinates={path}
+          trailColor="#0df2f2"
+          trailWidth={6}
+        />
       ) : (
         <View className="flex-1 items-center justify-center">
           <Text className="text-zinc-500 font-bold uppercase tracking-widest">
@@ -148,17 +132,6 @@ export default function RecordScreen() {
           </View>
         ))}
       </Animated.View>
-
-      {/* Map Toggle */}
-      <AnimatedTouchableOpacity
-        entering={FadeInRight.delay(400).duration(600).springify()}
-        onPress={() =>
-          setMapType(mapType === "standard" ? "satellite" : "standard")
-        }
-        className="absolute bottom-40 right-6 h-12 w-12 rounded-full bg-zinc-900/90 border border-zinc-800 items-center justify-center"
-      >
-        <MapIcon size={20} color="#0df2f2" />
-      </AnimatedTouchableOpacity>
 
       {/* Control Panel */}
       <Animated.View
@@ -220,24 +193,3 @@ export default function RecordScreen() {
     </View>
   );
 }
-
-const darkMapStyle = [
-  { elementType: "geometry", stylers: [{ color: "#18181b" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#71717a" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#18181b" }] },
-  {
-    featureType: "administrative.country",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#3f3f46" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#27272a" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#09090b" }],
-  },
-];

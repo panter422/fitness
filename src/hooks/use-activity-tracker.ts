@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import * as Location from 'expo-location';
+import { matchGpsTrace } from '@/src/services/map-matching';
 
 export interface ActivityLocation {
   latitude: number;
@@ -105,6 +106,24 @@ export function useActivityTracker() {
     };
   };
 
+  const snapToRoads = async () => {
+    if (path.length < 2) return null;
+    try {
+      const result = await matchGpsTrace(path);
+      setPath(result.snappedPath.map(p => ({
+        ...p,
+        timestamp: Date.now(), // dummy timestamp for snapped points
+        altitude: null,
+        speed: null
+      })));
+      setDistance(result.distance);
+      return result;
+    } catch (error) {
+      console.error('Failed to snap to roads:', error);
+      return null;
+    }
+  };
+
   return {
     isRecording,
     isPaused,
@@ -116,8 +135,9 @@ export function useActivityTracker() {
     pauseRecording,
     resumeRecording,
     stopRecording,
+    snapToRoads,
   };
-}
+};
 
 // Haversine formula for distance
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
