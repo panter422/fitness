@@ -1,9 +1,7 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { Platform } from 'react-native';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { persistStore, persistReducer } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import storageWeb from 'redux-persist/lib/storage';
 import { api } from '@/src/services/api';
 import activityReducer from './activitySlice';
 
@@ -14,7 +12,7 @@ const rootReducer = combineReducers({
 
 const persistConfig = {
   key: 'root',
-  storage: Platform.OS === 'web' ? storageWeb : AsyncStorage,
+  storage: AsyncStorage,
   whitelist: ['activities'], // only persist activity history
 };
 

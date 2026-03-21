@@ -5,7 +5,7 @@ import type { MapRef } from 'react-map-gl/maplibre';
 import type { LineLayerSpecification } from 'maplibre-gl';
 import { FeatureCollection } from 'geojson';
 
-const OPENFREEMAP_DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
+const OPENFREEMAP_BRIGHT_STYLE = 'https://tiles.openfreemap.org/styles/bright';
 
 export interface MapLibreViewProps {
   initialRegion?: {
@@ -85,7 +85,7 @@ export default function MapLibreView({
         duration: 500,
       });
     }
-  }, [region?.latitude, region?.longitude]);
+  }, [region?.latitude, region?.longitude, region]);
 
   const center = region
     ? { longitude: region.longitude, latitude: region.latitude }
@@ -102,7 +102,7 @@ export default function MapLibreView({
           latitude: center.latitude,
           zoom: 16,
         }}
-        mapStyle={OPENFREEMAP_DARK_STYLE}
+        mapStyle={OPENFREEMAP_BRIGHT_STYLE}
         interactive={scrollEnabled}
         scrollZoom={zoomEnabled}
         attributionControl={false}

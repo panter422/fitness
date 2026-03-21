@@ -1,30 +1,48 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { PaperProvider } from 'react-native-paper';
 import * as SplashScreen from 'expo-splash-screen';
-import { useFonts, BarlowCondensed_400Regular, BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
+import { useFonts } from 'expo-font';
+import { 
+  Lexend_400Regular, 
+  Lexend_700Bold, 
+  Lexend_900Black 
+} from '@expo-google-fonts/lexend';
 import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import '../global.css';
-import { useColorScheme } from '@/src/hooks/use-color-scheme';
 import { store, persistor } from '@/src/store';
 
 SplashScreen.preventAutoHideAsync();
+
+const NitroTrailTheme = {
+  ...DarkTheme,
+  dark: true,
+  colors: {
+    ...DarkTheme.colors,
+    primary: '#0df2f2',
+    background: '#0a0a0a',
+    card: '#18181b',
+    text: '#ffffff',
+    border: '#27272a',
+    notification: '#ff00ff',
+  },
+};
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded, error] = useFonts({
-    'BarlowCondensed-Regular': BarlowCondensed_400Regular,
-    'BarlowCondensed-Bold': BarlowCondensed_700Bold,
+    'Lexend-Regular': Lexend_400Regular,
+    'Lexend-Bold': Lexend_700Bold,
+    'Lexend-Black': Lexend_900Black,
     'Inter-Regular': Inter_400Regular,
     'Inter-Bold': Inter_700Bold,
   });
@@ -43,12 +61,12 @@ export default function RootLayout() {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <PaperProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <ThemeProvider value={NitroTrailTheme}>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="activity/[id]" options={{ presentation: 'modal', title: 'Activity Summary' }} />
             </Stack>
-            <StatusBar style="auto" />
+            <StatusBar style="light" />
           </ThemeProvider>
         </PaperProvider>
       </PersistGate>

@@ -26,7 +26,7 @@ function GlowPulse({ focused }: { focused: boolean }) {
       -1,
       true
     );
-  }, []);
+  }, [pulse]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -38,10 +38,10 @@ function GlowPulse({ focused }: { focused: boolean }) {
   return (
     <View className="items-center justify-center">
       <Animated.View 
-        style={[{ position: 'absolute', width: 64, height: 64, borderRadius: 32, backgroundColor: focused ? '#ff00ff' : '#0df2f2' }, animatedStyle]} 
+        style={[{ position: 'absolute', width: 68, height: 68, borderRadius: 34, backgroundColor: focused ? '#ff00ff' : '#0df2f2' }, animatedStyle]} 
       />
-      <View className={`h-16 w-16 -mt-8 rounded-full bg-zinc-900 border-2 items-center justify-center elevation-lg shadow-xl shadow-black ${focused ? 'border-pink-500' : 'border-zinc-800'}`}>
-        <CirclePlay size={32} color={focused ? '#ff00ff' : '#0df2f2'} strokeWidth={2.5} />
+      <View className={`h-16 w-16 -mt-8 rounded-full bg-zinc-950 border-2 items-center justify-center elevation-lg shadow-xl shadow-black ${focused ? 'border-pink-500' : 'border-zinc-800'}`}>
+        <CirclePlay size={34} color={focused ? '#ff00ff' : '#0df2f2'} strokeWidth={2.5} />
       </View>
     </View>
   );
@@ -51,15 +51,17 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#0df2f2', // Teal
-        tabBarInactiveTintColor: '#52525b',
+        tabBarActiveTintColor: '#0df2f2', // NitroTrail Primary
+        tabBarInactiveTintColor: '#71717a', // Zinc-400
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: '#09090b', // zinc-950
+          backgroundColor: '#0a0a0a',
           borderTopColor: '#18181b',
-          height: 80,
-          paddingBottom: 20,
+          height: 85,
+          paddingBottom: 25,
+          elevation: 0,
+          shadowOpacity: 0,
         },
       }}>
       <Tabs.Screen

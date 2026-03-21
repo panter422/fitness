@@ -86,20 +86,27 @@ export default function ActivitySummaryScreen() {
         </View>
 
         {/* Map Snapshot */}
-        <View className="h-60 rounded-3xl overflow-hidden border border-zinc-900 mb-8">
-          <MapLibreView
-            style={{ flex: 1 }}
-            initialRegion={{
-              latitude: activity.path[0].latitude,
-              longitude: activity.path[0].longitude,
-            }}
-            scrollEnabled={false}
-            zoomEnabled={false}
-            trailCoordinates={activity.path}
-            trailColor="#0df2f2"
-            trailWidth={4}
-          />
-        </View>
+        {activity.path && activity.path.length > 0 ? (
+          <View className="h-60 rounded-3xl overflow-hidden border border-zinc-900 mb-8">
+            <MapLibreView
+              style={{ flex: 1 }}
+              initialRegion={{
+                latitude: activity.path[0].latitude,
+                longitude: activity.path[0].longitude,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
+              trailCoordinates={activity.path}
+              trailColor="#0df2f2"
+              trailWidth={4}
+            />
+          </View>
+        ) : (
+          <View className="h-60 rounded-3xl overflow-hidden border border-zinc-900 mb-8 bg-zinc-900 justify-center items-center">
+            <MapPin size={32} color="#52525b" />
+            <Text className="text-zinc-500 text-xs mt-2 font-bold uppercase tracking-widest font-lexend">No Route Recorded</Text>
+          </View>
+        )}
 
         {/* Key Stats Row */}
         <View className="flex-row justify-between mb-8">

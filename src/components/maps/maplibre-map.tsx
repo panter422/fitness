@@ -4,7 +4,7 @@ import MapLibreGL from '@maplibre/maplibre-react-native';
 import { FeatureCollection } from 'geojson';
 
 
-const OPENFREEMAP_DARK_STYLE = 'https://tiles.openfreemap.org/styles/dark';
+const OPENFREEMAP_BRIGHT_STYLE = 'https://tiles.openfreemap.org/styles/bright';
 
 export interface MapLibreViewProps {
   initialRegion?: {
@@ -84,7 +84,7 @@ export default function MapLibreView({
     <View style={[styles.container, style]}>
       <MapLibreGL.MapView
         style={styles.map}
-        mapStyle={OPENFREEMAP_DARK_STYLE}
+        mapStyle={OPENFREEMAP_BRIGHT_STYLE}
         scrollEnabled={scrollEnabled}
         zoomEnabled={zoomEnabled}
         pitchEnabled={false}
