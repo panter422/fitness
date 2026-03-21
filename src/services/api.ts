@@ -10,6 +10,6 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User', 'Workout', 'Exercise'],
+  tagTypes: ['User', 'Workout', 'Exercise', 'Activity'],
   endpoints: () => ({}), // Endpoints will be injected by features
 });

@@ -5,11 +5,17 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/src/store';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-export default function DashboardScreen() {
-  const savedActivities = useSelector((state: RootState) => state.activities.activities);
+import { useGetActivitiesQuery } from '@/src/services/activity-api';
 
-  const totalDistance = savedActivities.reduce((acc, curr) => acc + curr.distance, 0) / 1000;
-  const totalSeconds = savedActivities.reduce((acc, curr) => acc + curr.duration, 0);
+export default function DashboardScreen() {
+  const { data: backendActivities = [], isLoading, isError } = useGetActivitiesQuery();
+  const localActivities = useSelector((state: RootState) => state.activities.activities);
+  
+  // Combine or prefer backend data
+  const savedActivities = backendActivities.length > 0 ? backendActivities : localActivities;
+
+  const totalDistance = savedActivities.reduce((acc, curr) => acc + Number(curr.distance), 0) / 1000;
+  const totalSeconds = savedActivities.reduce((acc, curr) => acc + Number(curr.duration), 0);
   const totalHours = Math.floor(totalSeconds / 3600);
   const totalMins = Math.floor((totalSeconds % 3600) / 60);
 

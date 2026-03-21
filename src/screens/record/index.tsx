@@ -3,6 +3,7 @@ import { useActivityTracker } from "@/src/hooks/use-activity-tracker";
 import { addActivity } from "@/src/store/activitySlice";
 import { router } from "expo-router";
 import { Clock, Pause, Play, Route, Square } from "lucide-react-native";
+import { Activity, useCreateActivityMutation } from "../../services/activity-api";
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-paper";
@@ -12,6 +13,7 @@ import { useDispatch } from "react-redux";
 
 export default function RecordScreen() {
   const dispatch = useDispatch();
+  const [createActivity] = useCreateActivityMutation();
   const {
     isRecording,
     isPaused,
@@ -28,30 +30,40 @@ export default function RecordScreen() {
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const secs = Math.floor(seconds % 60);
     return `${hrs > 0 ? hrs + ":" : ""}${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleStop = () => {
+  const handleStop = async () => {
     const finalData = stopRecording();
     const id = Math.random().toString(36).substring(7);
+    const date = Date.now();
 
-    dispatch(
-      addActivity({
-        id,
-        title: "New Activity",
-        date: Date.now(),
-        distance: finalData.distance,
-        duration: finalData.duration,
-        elevation: Math.floor(finalData.distance / 50),
-        path: finalData.path.map((p) => ({
-          latitude: p.latitude,
-          longitude: p.longitude,
-          timestamp: p.timestamp,
-        })),
-        type: "run",
-      }),
-    );
+    const newActivity: Activity = {
+      id,
+      title: "New Activity",
+      date,
+      distance: finalData.distance,
+      duration: finalData.duration,
+      elevation: Math.floor(finalData.distance / 50),
+      path: finalData.path.map((p) => ({
+        latitude: p.latitude,
+        longitude: p.longitude,
+        timestamp: p.timestamp,
+      })),
+      type: "run",
+    };
+
+    // Save to local Redux store
+    dispatch(addActivity(newActivity));
+
+    // Persist to backend
+    try {
+      await createActivity(newActivity).unwrap();
+    } catch (error) {
+      console.error("Failed to persist activity to backend:", error);
+      // We still proceed to the summary screen since it's in local store
+    }
 
     router.push(`/activity/${id}` as any);
   };
