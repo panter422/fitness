@@ -16,14 +16,8 @@ const activitySlice = createSlice({
     addActivity: (state, action: PayloadAction<Activity>) => {
       state.activities.unshift(action.payload);
     },
-    deleteActivity: (state, action: PayloadAction<string>) => {
-      state.activities = state.activities.filter(a => a.id !== action.payload);
-    },
-    clearActivities: (state) => {
-      state.activities = [];
-    },
   },
 });
 
-export const { addActivity, deleteActivity, clearActivities } = activitySlice.actions;
+export const { addActivity } = activitySlice.actions;
 export default activitySlice.reducer;

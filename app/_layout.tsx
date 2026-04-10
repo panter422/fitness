@@ -12,6 +12,7 @@ import {
   Lexend_900Black 
 } from '@expo-google-fonts/lexend';
 import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
+import { BarlowCondensed_700Bold } from '@expo-google-fonts/barlow-condensed';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
@@ -51,6 +52,7 @@ export default function RootLayout() {
     'Lexend-Black': Lexend_900Black,
     'Inter-Regular': Inter_400Regular,
     'Inter-Bold': Inter_700Bold,
+    'BarlowCondensed-Bold': BarlowCondensed_700Bold,
   });
 
   useEffect(() => {
@@ -71,6 +73,7 @@ export default function RootLayout() {
             <ActivitySyncBootstrap />
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="profile" options={{ title: 'Profile' }} />
               <Stack.Screen name="activity/[id]" options={{ presentation: 'modal', title: 'Activity Summary' }} />
             </Stack>
             <StatusBar style="light" />

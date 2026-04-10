@@ -1,11 +1,13 @@
 import { View, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useRouter } from 'expo-router';
 import { Clock, Route, Activity, Trophy, ArrowUpRight } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { useMergedActivities } from '@/src/features/activity';
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { activities: savedActivities } = useMergedActivities();
 
   const totalDistance = savedActivities.reduce((acc, curr) => acc + Number(curr.distance), 0) / 1000;
@@ -45,7 +47,12 @@ export default function DashboardScreen() {
               YOUR STATS
             </Text>
           </View>
-          <TouchableOpacity className="h-10 w-10 rounded-full border border-zinc-800 items-center justify-center bg-card">
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Open profile"
+            onPress={() => router.push('/profile')}
+            className="h-10 w-10 rounded-full border border-zinc-800 items-center justify-center bg-card"
+          >
             <Text className="text-zinc-400 font-lexend">AJ</Text>
           </TouchableOpacity>
         </View>

@@ -16,18 +16,12 @@ frontend/
 │   │   ├── index.tsx           # Home tab   → re-exports src/screens/dashboard
 │   │   ├── record.tsx          # Record tab → re-exports src/screens/record
 │   │   └── explore.tsx         # Feed tab   → re-exports src/screens/feed
-│   ├── (auth)/                 # Auth flow group (unauthenticated)
-│   │   ├── _layout.tsx
-│   │   ├── login.tsx
-│   │   └── register.tsx
-│   ├── (onboarding)/           # Onboarding flow group
-│   │   ├── _layout.tsx
-│   │   └── [step].tsx          # Dynamic onboarding steps
+│   ├── (auth)/                 # Planned — not in repo yet
+│   ├── (onboarding)/           # Planned — not in repo yet
 │   ├── activity/
-│   │   └── [id].tsx            # Activity summary modal
-│   ├── _layout.tsx             # Root layout (providers, fonts, splash)
-│   ├── profile.tsx             # Profile screen → re-exports src/screens/profile
-│   └── modal.tsx               # Global modal screen
+│   │   └── [id].tsx            # Activity summary (stack modal)
+│   ├── _layout.tsx             # Root layout (providers, fonts, splash, Stack)
+│   └── profile.tsx             # Profile → re-exports src/screens/profile (e.g. from dashboard)
 │
 ├── src/
 │   ├── features/               # ⭐ Feature modules (business logic + state + hooks)
@@ -54,25 +48,13 @@ frontend/
 │   │   └── api.ts              # RTK Query base API (fetchBaseQuery, tags)
 │   │
 │   ├── store/                  # Redux Store configuration
-│   │   ├── index.ts            # Store setup, root reducer, typed exports
-│   │   └── hooks.ts            # Typed useAppDispatch, useAppSelector, useAppStore
+│   │   └── index.ts            # Store, persistor, RootState, AppDispatch
 │   │
-│   ├── hooks/                  # Shared/global hooks (theme, platform, etc.)
-│   │   ├── use-color-scheme.ts
-│   │   ├── use-color-scheme.web.ts
-│   │   └── use-theme-color.ts
+│   ├── hooks/                  # Shared/global hooks (add as needed)
 │   │
-│   ├── theme/                  # Design tokens — single source of truth
-│   │   └── index.ts            # Colors, fonts, spacing
-│   │
-│   ├── constants/              # App-wide constants & config
-│   │   └── config.ts           # API URLs, feature flags, env vars
-│   │
-│   ├── types/                  # Global TypeScript types & interfaces
-│   │   └── <domain>.types.ts
-│   │
-│   ├── utils/                  # Global utility functions
-│   │   └── <util-name>.ts
+│   ├── constants/              # Planned — e.g. config.ts for API URLs, flags
+│   ├── types/                  # Planned — global <domain>.types.ts
+│   ├── utils/                  # Planned — shared helpers
 │   │
 │   └── assets/                 # Static assets (images, fonts, animations)
 │       ├── images/
@@ -125,6 +107,8 @@ src/features/activity/
 - Internal imports use **relative paths** (`../types`, `./use-merged-activities`).
 - External consumers import **only through the barrel** (`@/src/features/activity`).
 - Feature modules may import from `@/src/services/api` and `@/src/store` but **never** from other features (to avoid circular dependencies).
+
+**Barrel = public API only** — export what screens and `app/` need (types, reducer/actions wired to UI, composed hooks). Keep RTK Query generated hooks, `activityApi`, and internal utils **private** to the feature (import from `redux/` and `utils/` inside the feature only).
 
 ### 3. Screen Components
 
@@ -187,10 +171,10 @@ If a component exceeds ~150 lines, extract sub-components or custom hooks.
 
 ## Routing (Expo Router)
 
-- Each **route group** uses parenthesized folders: `(tabs)`, `(auth)`, `(onboarding)`.
-- **Layouts** (`_layout.tsx`) define navigation structure (Stack, Tabs, Drawer).
+- Each **route group** uses parenthesized folders: `(tabs)`, and when added `(auth)`, `(onboarding)`.
+- **Layouts** (`_layout.tsx`) define navigation structure (Stack, Tabs, Drawer). Root `app/_layout.tsx` registers stack screens such as `(tabs)`, `profile`, and `activity/[id]` (modal presentation for activity detail).
 - **Dynamic segments** use bracket syntax: `[id].tsx`, `[step].tsx`.
-- **Modals** are defined as screens with `presentation: 'modal'` in the layout config.
+- **Modals** are screens with `presentation: 'modal'` in the root (or nested) stack options.
 - Keep route files **thin**: delegate to `src/screens/` → which delegates to `src/features/`.
 
 ---
@@ -211,15 +195,14 @@ If a component exceeds ~150 lines, extract sub-components or custom hooks.
 
 1. **Base API** in `src/services/api.ts` — `createApi` with `fetchBaseQuery` and empty endpoints.
 2. **Feature endpoints** injected via `api.injectEndpoints()` in `src/features/<feature>/redux/`.
-3. **Auto-generated hooks** (e.g., `useGetActivitiesQuery`) exported through the feature barrel.
+3. **Generated hooks** (e.g. `useGetActivitiesQuery`) are used **inside** feature modules (hooks, slice helpers). Screens use **composed** exports from the barrel (e.g. `useMergedActivities`, `useActivityById`, `useSyncActivitiesWithServer`) rather than raw RTK hooks.
 
 ```
-User taps screen
-  → component calls useGetActivitiesQuery()          (from feature barrel)
-    → RTK Query checks cache
-      → fetches via baseQuery if needed
-        → updates global store state
-          → component re-renders with data
+User opens screen
+  → component calls useMergedActivities()             (from feature barrel)
+    → feature hook calls useGetActivitiesQuery()       (internal to feature)
+      → RTK Query checks cache → fetch if needed
+        → composed data returned to screen
 ```
 
 ---
@@ -227,7 +210,7 @@ User taps screen
 ## Styling Approach
 
 - Use **NativeWind** (Tailwind CSS classes) for styling via `className`.
-- Theme tokens live in `src/theme/index.ts` — import from there, never hardcode colors/spacing.
+- **Fonts** are loaded in `app/_layout.tsx` via `expo-font` / `@expo-google-fonts/*` (e.g. Lexend, Inter, `BarlowCondensed-Bold` alias). Reintroduce a `src/theme/` token file later if you want a single source for colors and typography beyond Tailwind config.
 - Prefer **Reanimated** for animations, **Gesture Handler** for touch interactions.
 - For complex styles that can't be expressed as classes, use `StyleSheet.create`.
 
@@ -239,7 +222,7 @@ Use the configured `@/` path alias for clean imports:
 ```tsx
 // ✅ Good
 import { useActivityTracker } from '@/src/features/activity';
-import { Button } from '@/src/components/ui/button';
+import { HapticTab } from '@/src/components/ui/haptic-tab';
 
 // ❌ Bad — relative path spaghetti
 import { useActivityTracker } from '../../../features/activity/hooks/use-activity-tracker';
