@@ -1,21 +1,8 @@
-import { api } from './api';
+import { api } from '@/src/services/api';
+import type { Activity, ActivityLocation } from '../types';
 
-export interface ActivityLocation {
-  latitude: number;
-  longitude: number;
-  timestamp: number;
-}
-
-export interface Activity {
-  id: string;
-  title: string;
-  date: number;
-  distance: number;
-  duration: number;
-  elevation: number;
-  type: 'run' | 'ride' | 'hike';
-  path: ActivityLocation[];
-}
+// Re-export types for consumer convenience
+export type { Activity, ActivityLocation };
 
 function normalizeActivityFromApi(raw: unknown): Activity {
   const a = raw as Record<string, unknown>;
@@ -59,7 +46,7 @@ export const activityApi = api.injectEndpoints({
     getActivity: builder.query<Activity, string>({
       query: (id) => `/activities/${id}`,
       transformResponse: (response: unknown) => normalizeActivityFromApi(response),
-      providesTags: (result, error, id) => [{ type: 'Activity', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Activity', id }],
     }),
     createActivity: builder.mutation<Activity, Activity>({
       query: (activity) => ({

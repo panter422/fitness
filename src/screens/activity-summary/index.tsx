@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { View, ScrollView, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useActivityById } from '@/src/hooks/use-activity-by-id';
+import { useActivityById } from '@/src/features/activity';
 import MapLibreView from '@/src/components/maps/maplibre-map';
 import { Share2, X, MapPin, Clock, Route, Zap, TrendingUp } from 'lucide-react-native';
 import { captureRef } from 'react-native-view-shot';

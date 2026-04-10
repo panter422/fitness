@@ -3,7 +3,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { persistStore, persistReducer } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/src/services/api';
-import activityReducer from './activitySlice';
+import { activityReducer } from '@/src/features/activity';
 
 const rootReducer = combineReducers({
   [api.reducerPath]: api.reducer,

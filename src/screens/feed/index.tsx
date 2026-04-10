@@ -2,7 +2,7 @@ import { View, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Calendar, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useMergedActivities } from '@/src/hooks/use-merged-activities';
+import { useMergedActivities } from '@/src/features/activity';
 
 export default function FeedScreen() {
   const { activities: savedActivities } = useMergedActivities();

@@ -1,4 +1,4 @@
-import type { Activity } from '@/src/services/activity-api';
+import type { Activity } from '../types';
 
 /**
  * If the API row has no path but Redux still does (e.g. partial write), keep the local route.

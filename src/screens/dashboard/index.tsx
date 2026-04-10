@@ -3,7 +3,7 @@ import { Text } from 'react-native-paper';
 import { Clock, Route, Activity, Trophy, ArrowUpRight } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { useMergedActivities } from '@/src/hooks/use-merged-activities';
+import { useMergedActivities } from '@/src/features/activity';
 
 export default function DashboardScreen() {
   const { activities: savedActivities } = useMergedActivities();

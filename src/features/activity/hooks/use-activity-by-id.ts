@@ -1,5 +1,5 @@
-import { useGetActivityQuery } from '@/src/services/activity-api';
-import { useMergedActivities } from '@/src/hooks/use-merged-activities';
+import { useGetActivityQuery } from '../redux/activity-api';
+import { useMergedActivities } from './use-merged-activities';
 
 export function useActivityById(id: string | string[] | undefined) {
   const resolved = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;

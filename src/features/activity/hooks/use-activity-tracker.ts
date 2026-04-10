@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import * as Location from 'expo-location';
-import { matchGpsTrace } from '@/src/services/map-matching';
+import { matchGpsTrace } from '../utils/map-matching';
 
 export interface ActivityLocation {
   latitude: number;
@@ -23,7 +23,7 @@ export function useActivityTracker() {
   const [currentLocation, setCurrentLocation] = useState<ActivityLocation | null>(null);
   const [devSimulatedWalk, setDevSimulatedWalk] = useState(false);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   /** Latest values for stopRecording — state closures can lag one frame behind GPS updates. */
   const pathRef = useRef<ActivityLocation[]>([]);

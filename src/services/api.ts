@@ -46,7 +46,7 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: resolveApiBaseUrl(),
-    prepareHeaders: (headers: any) => {
+    prepareHeaders: (headers) => {
       // Add authentication headers here if needed
       return headers;
     },

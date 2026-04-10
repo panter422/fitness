@@ -1,15 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-export interface Activity {
-  id: string;
-  title: string;
-  date: number;
-  distance: number; // in meters
-  duration: number; // in seconds
-  elevation: number; // in meters (mocked or calculated)
-  path: { latitude: number; longitude: number; timestamp: number }[];
-  type: 'run' | 'ride' | 'hike';
-}
+import type { Activity } from '../types';
 
 interface ActivityState {
   activities: Activity[];

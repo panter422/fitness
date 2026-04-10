@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { useSelector } from 'react-redux';
-import { useCreateActivityMutation, useGetActivitiesQuery } from '@/src/services/activity-api';
+import { useCreateActivityMutation, useGetActivitiesQuery } from '../redux/activity-api';
 import type { RootState } from '@/src/store';
 
 /**

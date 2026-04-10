@@ -17,7 +17,7 @@ import 'react-native-reanimated';
 
 import '../global.css';
 import { store, persistor } from '@/src/store';
-import { useSyncActivitiesWithServer } from '@/src/hooks/use-sync-activities-with-server';
+import { useSyncActivitiesWithServer } from '@/src/features/activity';
 
 function ActivitySyncBootstrap() {
   useSyncActivitiesWithServer();

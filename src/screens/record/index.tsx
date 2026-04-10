@@ -1,9 +1,8 @@
 import MapLibreView from "@/src/components/maps/maplibre-map";
-import { useActivityTracker } from "@/src/hooks/use-activity-tracker";
-import { addActivity } from "@/src/store/activitySlice";
+import { useActivityTracker, addActivity } from "@/src/features/activity";
 import { router } from "expo-router";
 import { Clock, Pause, Play, Route, Square } from "lucide-react-native";
-import type { Activity } from "../../services/activity-api";
+import type { Activity } from "@/src/features/activity";
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Switch, Text } from "react-native-paper";
