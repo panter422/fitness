@@ -1,12 +1,11 @@
 import { View, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Calendar, ChevronRight } from 'lucide-react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/src/store';
 import { router } from 'expo-router';
+import { useMergedActivities } from '@/src/hooks/use-merged-activities';
 
 export default function FeedScreen() {
-  const savedActivities = useSelector((state: RootState) => state.activities.activities);
+  const { activities: savedActivities } = useMergedActivities();
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

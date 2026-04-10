@@ -1,18 +1,12 @@
 import { View, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { Clock, Route, Activity, Trophy, ArrowUpRight } from 'lucide-react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/src/store';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { useGetActivitiesQuery } from '@/src/services/activity-api';
+import { useMergedActivities } from '@/src/hooks/use-merged-activities';
 
 export default function DashboardScreen() {
-  const { data: backendActivities = [], isLoading, isError } = useGetActivitiesQuery();
-  const localActivities = useSelector((state: RootState) => state.activities.activities);
-  
-  // Combine or prefer backend data
-  const savedActivities = backendActivities.length > 0 ? backendActivities : localActivities;
+  const { activities: savedActivities } = useMergedActivities();
 
   const totalDistance = savedActivities.reduce((acc, curr) => acc + Number(curr.distance), 0) / 1000;
   const totalSeconds = savedActivities.reduce((acc, curr) => acc + Number(curr.duration), 0);

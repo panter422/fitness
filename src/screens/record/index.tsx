@@ -3,17 +3,16 @@ import { useActivityTracker } from "@/src/hooks/use-activity-tracker";
 import { addActivity } from "@/src/store/activitySlice";
 import { router } from "expo-router";
 import { Clock, Pause, Play, Route, Square } from "lucide-react-native";
-import { Activity, useCreateActivityMutation } from "../../services/activity-api";
+import type { Activity } from "../../services/activity-api";
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Text } from "react-native-paper";
+import { Switch, Text } from "react-native-paper";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useDispatch } from "react-redux";
 
 
 export default function RecordScreen() {
   const dispatch = useDispatch();
-  const [createActivity] = useCreateActivityMutation();
   const {
     isRecording,
     isPaused,
@@ -25,6 +24,8 @@ export default function RecordScreen() {
     pauseRecording,
     resumeRecording,
     stopRecording,
+    devSimulatedWalk,
+    setDevSimulatedWalk,
   } = useActivityTracker();
 
   const formatTime = (seconds: number) => {
@@ -34,7 +35,7 @@ export default function RecordScreen() {
     return `${hrs > 0 ? hrs + ":" : ""}${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleStop = async () => {
+  const handleStop = () => {
     const finalData = stopRecording();
     const id = Math.random().toString(36).substring(7);
     const date = Date.now();
@@ -54,16 +55,8 @@ export default function RecordScreen() {
       type: "run",
     };
 
-    // Save to local Redux store
     dispatch(addActivity(newActivity));
-
-    // Persist to backend
-    try {
-      await createActivity(newActivity).unwrap();
-    } catch (error) {
-      console.error("Failed to persist activity to backend:", error);
-      // We still proceed to the summary screen since it's in local store
-    }
+    // Server sync runs globally (see ActivitySyncBootstrap); avoids duplicate POST vs sync race
 
     router.push(`/activity/${id}` as any);
   };
@@ -133,6 +126,30 @@ export default function RecordScreen() {
           </View>
         ))}
       </Animated.View>
+
+      {__DEV__ && (
+        <Animated.View
+          entering={FadeInDown.delay(80).duration(400)}
+          className="absolute top-36 left-6 right-6"
+        >
+          <View className="flex-row items-center justify-between rounded-2xl border border-amber-500/35 bg-zinc-950/95 px-4 py-2.5">
+            <View className="flex-1 pr-3">
+              <Text className="font-lexend text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                Simulated walk
+              </Text>
+              <Text className="mt-0.5 font-lexend text-[10px] text-zinc-500">
+                Fake GPS path for emulators (no real movement).
+              </Text>
+            </View>
+            <Switch
+              value={devSimulatedWalk}
+              onValueChange={setDevSimulatedWalk}
+              disabled={isRecording}
+              color="#fbbf24"
+            />
+          </View>
+        </Animated.View>
+      )}
 
       <Animated.View
         entering={FadeInUp.duration(600).springify()}

@@ -17,6 +17,12 @@ import 'react-native-reanimated';
 
 import '../global.css';
 import { store, persistor } from '@/src/store';
+import { useSyncActivitiesWithServer } from '@/src/hooks/use-sync-activities-with-server';
+
+function ActivitySyncBootstrap() {
+  useSyncActivitiesWithServer();
+  return null;
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -62,6 +68,7 @@ export default function RootLayout() {
       <PersistGate loading={null} persistor={persistor}>
         <PaperProvider>
           <ThemeProvider value={NitroTrailTheme}>
+            <ActivitySyncBootstrap />
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="activity/[id]" options={{ presentation: 'modal', title: 'Activity Summary' }} />

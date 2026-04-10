@@ -2,8 +2,7 @@ import React, { useRef } from 'react';
 import { View, ScrollView, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/src/store';
+import { useActivityById } from '@/src/hooks/use-activity-by-id';
 import MapLibreView from '@/src/components/maps/maplibre-map';
 import { Share2, X, MapPin, Clock, Route, Zap, TrendingUp } from 'lucide-react-native';
 import { captureRef } from 'react-native-view-shot';
@@ -13,10 +12,7 @@ import { SocialShareCard } from './components/social-share-card';
 export default function ActivitySummaryScreen() {
   const { id } = useLocalSearchParams();
   const shareCardRef = useRef<View>(null);
-  
-  const activity = useSelector((state: RootState) => 
-    state.activities.activities.find(a => a.id === id)
-  );
+  const { activity, isLoading } = useActivityById(id);
 
   const handleShare = async () => {
     try {
@@ -36,10 +32,12 @@ export default function ActivitySummaryScreen() {
     }
   };
 
-  if (!activity) {
+  if (isLoading || !activity) {
     return (
       <View className="flex-1 bg-zinc-950 items-center justify-center">
-        <Text className="text-white">Activity not found</Text>
+        <Text className="text-white">
+          {isLoading ? 'Loading…' : 'Activity not found'}
+        </Text>
       </View>
     );
   }

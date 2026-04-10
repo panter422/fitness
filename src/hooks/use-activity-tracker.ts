@@ -10,6 +10,10 @@ export interface ActivityLocation {
   speed: number | null;
 }
 
+/** ~San Francisco — used when simulating without a real GPS fix. */
+const DEV_SIM_DEFAULT_LAT = 37.7749;
+const DEV_SIM_DEFAULT_LNG = -122.4194;
+
 export function useActivityTracker() {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -17,9 +21,51 @@ export function useActivityTracker() {
   const [distance, setDistance] = useState(0); // in meters
   const [path, setPath] = useState<ActivityLocation[]>([]);
   const [currentLocation, setCurrentLocation] = useState<ActivityLocation | null>(null);
-  
+  const [devSimulatedWalk, setDevSimulatedWalk] = useState(false);
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
+  /** Latest values for stopRecording — state closures can lag one frame behind GPS updates. */
+  const pathRef = useRef<ActivityLocation[]>([]);
+  const distanceRef = useRef(0);
+  const elapsedRef = useRef(0);
+  const devSimulatedWalkRef = useRef(false);
+  const simStepRef = useRef(0);
+  const isRecordingRef = useRef(isRecording);
+  const isPausedRef = useRef(isPaused);
+
+  useEffect(() => {
+    devSimulatedWalkRef.current = devSimulatedWalk;
+  }, [devSimulatedWalk]);
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+
+  useEffect(() => {
+    pathRef.current = path;
+  }, [path]);
+  useEffect(() => {
+    distanceRef.current = distance;
+  }, [distance]);
+  useEffect(() => {
+    elapsedRef.current = elapsedTime;
+  }, [elapsedTime]);
+
+  // Dev: map preview without waiting for emulator GPS
+  useEffect(() => {
+    if (!__DEV__ || !devSimulatedWalk || currentLocation) return;
+    const t = Date.now();
+    setCurrentLocation({
+      latitude: DEV_SIM_DEFAULT_LAT,
+      longitude: DEV_SIM_DEFAULT_LNG,
+      timestamp: t,
+      altitude: null,
+      speed: null,
+    });
+  }, [devSimulatedWalk, currentLocation]);
 
   // Timer Logic
   useEffect(() => {
@@ -46,6 +92,10 @@ export function useActivityTracker() {
         distanceInterval: 5, // update every 5 meters
       },
       (location) => {
+        if (devSimulatedWalkRef.current && isRecordingRef.current) {
+          return;
+        }
+
         const newPoint: ActivityLocation = {
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
@@ -56,7 +106,7 @@ export function useActivityTracker() {
 
         setCurrentLocation(newPoint);
 
-        if (isRecording && !isPaused) {
+        if (isRecordingRef.current && !isPausedRef.current) {
           setPath(prev => {
             if (prev.length > 0) {
               const lastPoint = prev[prev.length - 1];
@@ -66,9 +116,15 @@ export function useActivityTracker() {
                 newPoint.latitude,
                 newPoint.longitude
               );
-              setDistance(prevDist => prevDist + d);
+              setDistance(prevDist => {
+                const next = prevDist + d;
+                distanceRef.current = next;
+                return next;
+              });
             }
-            return [...prev, newPoint];
+            const next = [...prev, newPoint];
+            pathRef.current = next;
+            return next;
           });
         }
       }
@@ -84,12 +140,81 @@ export function useActivityTracker() {
     };
   }, [isRecording, isPaused]);
 
+  // __DEV__: fake ~6 m steps along a short path while recording
+  useEffect(() => {
+    if (!__DEV__ || !devSimulatedWalk || !isRecording || isPaused) return;
+
+    simStepRef.current = 0;
+    const id = setInterval(() => {
+      simStepRef.current += 1;
+      const i = simStepRef.current;
+      const prev = pathRef.current;
+      const last = prev[prev.length - 1];
+      if (!last) return;
+
+      const dLat = 0.000054;
+      const dLon = Math.sin(i * 0.4) * 0.000018;
+      const newPoint: ActivityLocation = {
+        latitude: last.latitude + dLat,
+        longitude: last.longitude + dLon,
+        timestamp: Date.now(),
+        altitude: null,
+        speed: 2.2,
+      };
+
+      const d = calculateDistance(
+        last.latitude,
+        last.longitude,
+        newPoint.latitude,
+        newPoint.longitude
+      );
+
+      setCurrentLocation(newPoint);
+      setDistance(dist => {
+        const next = dist + d;
+        distanceRef.current = next;
+        return next;
+      });
+      setPath(p => {
+        const next = [...p, newPoint];
+        pathRef.current = next;
+        return next;
+      });
+    }, 750);
+
+    return () => clearInterval(id);
+  }, [devSimulatedWalk, isRecording, isPaused]);
+
   const startRecording = () => {
     setIsRecording(true);
     setIsPaused(false);
     setElapsedTime(0);
     setDistance(0);
+    distanceRef.current = 0;
     setPath([]);
+    pathRef.current = [];
+
+    if (__DEV__ && devSimulatedWalk) {
+      const base =
+        currentLocation ??
+        ({
+          latitude: DEV_SIM_DEFAULT_LAT,
+          longitude: DEV_SIM_DEFAULT_LNG,
+          timestamp: Date.now(),
+          altitude: null,
+          speed: null,
+        } satisfies ActivityLocation);
+      const seed: ActivityLocation = {
+        latitude: base.latitude,
+        longitude: base.longitude,
+        timestamp: Date.now(),
+        altitude: base.altitude,
+        speed: base.speed ?? 2,
+      };
+      setCurrentLocation(seed);
+      setPath([seed]);
+      pathRef.current = [seed];
+    }
   };
 
   const pauseRecording = () => setIsPaused(true);
@@ -97,11 +222,10 @@ export function useActivityTracker() {
   const stopRecording = () => {
     setIsRecording(false);
     setIsPaused(false);
-    // Return final activity data for saving
     return {
-      path,
-      distance,
-      duration: elapsedTime,
+      path: pathRef.current,
+      distance: distanceRef.current,
+      duration: elapsedRef.current,
       endTime: Date.now(),
     };
   };
@@ -136,6 +260,8 @@ export function useActivityTracker() {
     resumeRecording,
     stopRecording,
     snapToRoads,
+    devSimulatedWalk,
+    setDevSimulatedWalk,
   };
 };
 
